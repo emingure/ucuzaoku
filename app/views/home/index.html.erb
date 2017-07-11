@@ -1,0 +1,7 @@
+<% @content.each do |book| %>
+URL: <%= link_to book['url'] %><br>
+Title: <%= book['title'] %><br>
+Price: <%= book['price'] %>
+<br>
+<hr>
+<% end %>
