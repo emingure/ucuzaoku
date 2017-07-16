@@ -1,0 +1,7 @@
+<% @books.each do |book| %>
+<%= image_tag book.xpath('image_url').text %>
+Title: <%= book.xpath('title').text %><br>
+Author: <%= book.xpath('author/name').text %><br>
+<br>
+<hr>
+<% end %>

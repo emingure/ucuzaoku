@@ -1,0 +1,12 @@
+<% @books['items'].each do |book| %>
+<% # byebug %>
+<div class="row">
+<%= image_tag book['volumeInfo']['imageLinks']['smallThumbnail'] if book['volumeInfo']['imageLinks'].present? %>
+<%= book['volumeInfo']['title'] %>
+<br>
+<%= book['volumeInfo']['authors'] %>
+<br>
+<%= book['volumeInfo']['description'] %>
+<hr>
+</div>
+<% end %>

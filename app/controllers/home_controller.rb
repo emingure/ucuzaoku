@@ -1,9 +1,10 @@
 class HomeController < ApplicationController
-  def index
+  def show
     a = Mechanize.new { |agent|
       agent.user_agent_alias = 'Mac Safari'
     }
     @content = []
+    @q = params[:id]
     Thread.new { find_kitapyurdu a }.join
     Thread.new { find_dr_idefix(a, /.*D&R.*/, 'D&R') }.join
     Thread.new { find_dr_idefix(a, /.*defix.*/, 'idefix') }.join
@@ -24,7 +25,7 @@ class HomeController < ApplicationController
   def find_kitapyurdu (a)
     a.get('http://google.com/') do |page|
       search_result = page.form_with(:id => 'tsf') do |search|
-        search.q = 'hayvan cifligi kitapyurdu'
+        search.q = @q + ' kitapyurdu'
       end.submit
 
       b = ''
@@ -53,7 +54,7 @@ class HomeController < ApplicationController
   def find_dr_idefix (a,website, website_s)
     a.get('http://google.com/') do |page|
       search_result = page.form_with(:id => 'tsf') do |search|
-        search.q = 'elon musk ' + website_s
+        search.q = @q + ' ' + website_s
       end.submit
 
       b = ''
@@ -82,7 +83,7 @@ class HomeController < ApplicationController
   def find_babil (a)
     a.get('http://babil.com/') do |page|
       search_result = page.form_with(:id => 'frmSearch') do |search|
-        search.q = 'hayvan'
+        search.q = @q
       end.submit
 
       #puts search_result.content
@@ -104,7 +105,7 @@ class HomeController < ApplicationController
   def find_pandora (a)
     a.get('http://pandora.com.tr/') do |page|
       search_result = page.form_with(:action => '/Arama') do |search|
-        search['text'] = 'hayvan'
+        search['text'] = @q
       end.submit
 
       search_result.css('li.urunorta').each do |link|
@@ -124,7 +125,7 @@ class HomeController < ApplicationController
   def find_nadirkitap (a)
     a.get('http://nadirkitap.com/') do |page|
       search_result = page.form_with(:id => 'search-form') do |search|
-        search['kelime'] = 'hayvan'
+        search['kelime'] = @q
       end.submit
 
       search_result.css('ul.product-list li div.product-list-right-top').each do |link|
