@@ -1,6 +1,9 @@
 <% @content.each do |book| %>
+<%= image_tag book['img_url'] if book['img_url'] %>
 URL: <%= link_to 'link', book['url'] %><br>
 Title: <%= book['title'] %><br>
+Author: <%= book['author'] %><br>
+Publisher: <%= book['publisher'] %><br>
 Price: <%= book['price'] %>
 <br>
 <hr>
