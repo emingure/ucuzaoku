@@ -50,6 +50,10 @@ class HomeController < ApplicationController
           info['price'] = price.content
         end
 
+        unless info['price']
+          info['price'] = link.css('div.price span.price-old span.value').first.content
+        end
+
         if info['price'].present?
           @content << info
           break

@@ -6,9 +6,9 @@ class GoodreadsController < ApplicationController
       doc = Nokogiri::XML.parse(response.to_s)
       @books = doc.xpath('//best_book')
 
-      # title = @books.first.xpath('title').text
+      title = @books.first.xpath('title').text + ' ' + @books.first.xpath('author/name').text
       # isbn = response['items'][0]['volumeInfo']['industryIdentifiers'][0]['identifier'] if response['items'][0]['volumeInfo']['industryIdentifiers'].present?
-      # redirect_to :controller => 'home', :action => 'show', :id => title and return
+      redirect_to :controller => 'home', :action => 'show', :id => title and return
 
     end
   end
