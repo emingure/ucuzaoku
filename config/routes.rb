@@ -1,7 +1,9 @@
 Rails.application.routes.draw do
   resources :books
 
-  root 'home#index'
+  root 'home#show', :id => '15 temmuz'
+
+  get '/:id' => 'home#show'
 
   resources :google
   resources :home
