@@ -6,8 +6,8 @@ class HomeController < ApplicationController
     @content = []
     @q = params[:id]
     Thread.new { find_kitapyurdu a }.join
-    Thread.new { find_dr_idefix(a, /.*D&R.*/, 'D&R') }.join
-    Thread.new { find_dr_idefix(a, /.*defix.*/, 'idefix') }.join
+    Thread.new { find_dr a }.join
+    Thread.new { find_idefix a }.join
     Thread.new { find_babil a }.join
     Thread.new { find_pandora a }.join
     Thread.new { find_nadirkitap a }.join
@@ -23,76 +23,96 @@ class HomeController < ApplicationController
   private
 
   def find_kitapyurdu (a)
-    a.get('http://google.com/') do |page|
-      search_result = page.form_with(:id => 'tsf') do |search|
-        search.q = @q + ' kitapyurdu'
-      end.submit
+    a.get(URI.escape('http://www.kitapyurdu.com/index.php?route=product/search&filter_name='+@q+'&fuzzy=0&filter_product_type=1')) do |search_result|
 
-      b = ''
-      search_result.links.each do |link|
-        if link.text =~ /.*kitapyurdu\.com.*/
-          info = {}
-          b = a.click(link)
-          info['url'] = link.uri
-          b.xpath('//div[3]/div/div[1]/div[2]/div/h1').each do |title|
-            info['title'] = title.content
-          end
+      search_result.css('div#product-table div').each do |link|
+        info = {}
 
-          b.xpath('//div[4]/div[2]/div[3]/div/span', '//div[4]/div[2]/div[2]/div/span').each do |price|
-            info['price'] = price.content
-          end
+        link.css('div.name a').each do |url|
+          info['url'] = url['href']
+        end
+        link.css('div.name a span').each do |title|
+          info['title'] = title.content
+        end
 
-          if info['price'].present?
-            @content << info
-            break
-          end
+        link.css('div.price div.price-new span.value').each do |price|
+          info['price'] = price.content
+        end
+
+        if info['price'].present?
+          @content << info
+          break
         end
       end
     end
   end
 
-  def find_dr_idefix (a,website, website_s)
-    a.get('http://google.com/') do |page|
-      search_result = page.form_with(:id => 'tsf') do |search|
-        search.q = @q + ' ' + website_s
-      end.submit
+  def find_dr (a)
+    a.get('http://www.dr.com.tr/search?q='+URI.escape(@q)+'&cat=0%2C10001&parentId=10001') do |search_result|
 
-      b = ''
-      search_result.links.each do |link|
-        if link.text =~ website
-          info = {}
-          b = a.click(link)
-          info['url'] = link.uri
-          b.xpath('//*[@id="catPageContent"]/section[2]/div[2]/div[1]/div[1]/h1', '//*[@id="catPageContent"]/section[2]/div[2]/div[1]/div[1]/h2', '//*[@id="catPageContent"]/section[2]/div[2]/div[1]/div[1]/h3').each do |title|
-            info['title'] = title.content
-          end
+      search_result.xpath('//*[@id="container"]/div').each do |link|
+        info = {}
 
-          b.xpath('//*[@id="hdnChar1"]').each do |price|
-            info['price'] = price['data-price']
-          end
+        link.xpath('div[1]/div[1]/a[1]').each do |url|
+          info['url'] = 'http://www.dr.com.tr'+url['href']
+        end
+        link.xpath('div[1]/div[1]/a[1]/h3').each do |title|
+          info['title'] = title.content
+        end
 
-          if info['price'].present?
-            @content << info
-            break
-          end
+        link.xpath('div[1]/div[2]/span[2]').each do |price|
+          info['price'] = price.content
+        end
+
+        if info['price'].present?
+          @content << info
+          break
+        end
+      end
+    end
+  end
+
+  def find_idefix (a)
+    a.get('http://www.idefix.com/Search?q='+URI.escape(@q)+'&cat=0%2C11693&parentId=11693') do |search_result|
+
+      search_result.xpath('//*[@id="container"]/div').each do |link|
+        info = {}
+
+        link.xpath('div[1]/div[1]/a[1]').each do |url|
+          info['url'] = 'http://www.idefix.com'+url['href']
+        end
+        link.xpath('div[1]/div[1]/a[1]/h3').each do |title|
+          info['title'] = title.content
+        end
+
+        link.xpath('div[1]/div[2]/span[2]').each do |price|
+          info['price'] = price.content
+        end
+
+        if info['price'].present?
+          @content << info
+          break
         end
       end
     end
   end
 
   def find_babil (a)
-    a.get('http://babil.com/') do |page|
-      search_result = page.form_with(:id => 'frmSearch') do |search|
-        search.q = @q
-      end.submit
+    a.get(URI.escape('http://www.babil.com/arama?q='+@q+'&f_fname=Kitap')) do |search_result|
 
-      #puts search_result.content
-      search_result.xpath('//*[@id="category_product_display"]/ul/li').each do |link|
+      search_result.xpath('//*[@id="main"]/div/div/div[1]/div[5]/div').each do |link|
         #if link.text =~ /.*kitapyurdu\.com.*/
+        # puts link
         info = {}
-        info['url'] = 'http://www.babil.com' + link.xpath('div[1]/div[2]/h2/a')[0]['href']
-        info['title'] = link.xpath('div[1]/div[2]/h2/a').text
-        info['price'] = link.xpath('div[1]/div[2]/div[3]/div[1]/span[1]').text
+
+        link.xpath('div[2]/div/h2/a').each do |url|
+          info['url'] = 'http://www.babil.com'+url['href']
+          info['title'] = url.content
+        end
+
+        link.xpath('div[2]/div/div[2]/span[2]').each do |price|
+          info['price'] = price.content
+        end
 
         if info['price'].present?
           @content << info
@@ -103,10 +123,8 @@ class HomeController < ApplicationController
   end
 
   def find_pandora (a)
-    a.get('http://pandora.com.tr/') do |page|
-      search_result = page.form_with(:action => '/Arama') do |search|
-        search['text'] = @q
-      end.submit
+
+    a.get(URI.escape('http://www.pandora.com.tr/Arama?text='+@q+'&type=3')) do |search_result|
 
       search_result.css('li.urunorta').each do |link|
         info = {}
@@ -123,11 +141,7 @@ class HomeController < ApplicationController
   end
 
   def find_nadirkitap (a)
-    a.get('http://nadirkitap.com/') do |page|
-      search_result = page.form_with(:id => 'search-form') do |search|
-        search['kelime'] = @q
-      end.submit
-
+    a.get(URI.escape('http://www.nadirkitap.com/kitapara_sonuc.php?kelime='+@q)) do |search_result|
       search_result.css('ul.product-list li div.product-list-right-top').each do |link|
         info = {}
         info['url'] = link.xpath('div[1]/h4/a')[0]['href']
