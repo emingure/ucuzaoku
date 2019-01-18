@@ -1,24 +1,14 @@
-# README
+# UCUZAOKU
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Web scraping application to compare book prices through major Turkish book sellers(Kitapyurdu.com, dr.com, idefix.com, babil.com, nadirkitap.com)
 
-Things you may want to cover:
+## Usage
+\<URL\>/\<query\> (https://ucuzaoku.herokuapp.com/elon%20musk)
 
-* Ruby version
+-----
 
-* System dependencies
+#### Notes
 
-* Configuration
+* Search logic and managing scraping processes need to be revised and improved.
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+* This project is discontinued due to the unwillingness of the book sellers.
